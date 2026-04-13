@@ -7,39 +7,36 @@ Library that handle window creation, framebuffer presentation, and GUI event pip
 ## Example
 
 ```rs
-//! ```cargo
-//! [dependencies]
-//! bytemuck = "1.25.0"
-//! palser = { git = "https://github.com/leslie255/palser.git" }
-//! ```
-
 #[derive(Default)]
 struct App {
     frame_buffer: Vec<u8>,
 }
 
 impl palser::ApplicationHandler for App {
-    fn redraw_requested(
-        &mut self,
-        window_width: u32,
-        window_height: u32,
-        _dpi: f64,
-    ) -> palser::FrameOutput<'_> {
-        // Clear framebuffer.
+    fn redraw_requested(&mut self, width: u32, height: u32, _dpi: f64) -> palser::FrameOutput<'_> {
+        // Resize framebuffer (if needed).
         self.frame_buffer
-            .resize(window_width as usize * window_height as usize * 4, 0);
-        // Rendering.
-        for rgba in self.frame_buffer.chunks_mut(4) {
-            rgba.copy_from_slice(&[0xFF, 0x48, 0x48, 0xFF]);
+            .resize(width as usize * height as usize * 4, 0);
+
+        // Render a checkerboard pattern.
+        for y in 0..height {
+            for x in 0..width {
+                let color = match x / 32 + y / 32 {
+                    i if i.is_multiple_of(2) => [0x80, 0xFF, 0xFF, 0xFF],
+                    _ => [0xFF, 0x80, 0x80, 0xFF],
+                };
+                let offset = (y as usize * width as usize + x as usize) * 4;
+                self.frame_buffer[offset..offset + 4].copy_from_slice(&color);
+            }
         }
-        // Present.
+
+        // Submit for present.
         palser::FrameOutput::new(
-            window_width,
-            window_height,
+            width,
+            height,
             palser::FramebufferFormat::Rgba8UnormSrgb,
-            bytemuck::cast_slice(&self.frame_buffer[..]),
+            &self.frame_buffer[..],
         )
-        .window_title("Palser Example")
     }
 }
 
@@ -48,6 +45,10 @@ fn main() {
     palser::run_application(&mut app);
 }
 ```
+
+Result:
+
+![Screenshot 2026-04-13 at 08 54 32](https://github.com/user-attachments/assets/4615bf67-e44c-4b3c-a03a-5954e710d6be)
 
 ## LICENSE
 
