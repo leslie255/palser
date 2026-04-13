@@ -24,7 +24,7 @@ impl RgbaU8 {
 struct App {
     frame_width: u32,
     frame_height: u32,
-    frame_buffer: Vec<RgbaU8>,
+    framebuffer: Vec<RgbaU8>,
     cursor_locked: bool,
     cursor_hidden: bool,
     input_state: palser::utils::InputState,
@@ -34,7 +34,7 @@ impl App {
     #[inline(always)]
     fn assert_framebuffer_valid(&self) {
         let n_pixels = self.frame_width as usize * self.frame_height as usize;
-        assert_eq!(self.frame_buffer.len(), n_pixels);
+        assert_eq!(self.framebuffer.len(), n_pixels);
         assert!(self.frame_width != 0);
         assert!(self.frame_height != 0);
     }
@@ -48,11 +48,11 @@ impl App {
             for y in y_min..y_max {
                 let i_pixel = y as usize * self.frame_width as usize + x as usize;
                 // Safety:
-                // - asserted `frame_buffer.len()` size is well-formed against
+                // - asserted `framebuffer.len()` size is well-formed against
                 //   `frame_{width|height}`
                 // - `{x|y}_{min|max}` are clamped range (hence `x`, `y`, and `i_pixel` are in
                 //   range too)
-                unsafe { *self.frame_buffer.get_unchecked_mut(i_pixel) = color };
+                unsafe { *self.framebuffer.get_unchecked_mut(i_pixel) = color };
             }
         }
     }
@@ -82,11 +82,11 @@ impl App {
 
                 let i_pixel = y as usize * self.frame_width as usize + x as usize;
                 // Safety:
-                // - asserted `frame_buffer.len()` size is well-formed against
+                // - asserted `framebuffer.len()` size is well-formed against
                 //   `frame_{width|height}`
                 // - `x` and `y` are made sure to be in range earlier (therefore `i_pixel` is in
                 //   range too)
-                unsafe { *self.frame_buffer.get_unchecked_mut(i_pixel) = color };
+                unsafe { *self.framebuffer.get_unchecked_mut(i_pixel) = color };
             }
         }
     }
@@ -107,11 +107,11 @@ impl palser::ApplicationHandler for App {
             MAX_FRAME_HEIGHT,
         );
 
-        self.frame_buffer.resize(
+        self.framebuffer.resize(
             self.frame_width as usize * self.frame_height as usize,
             RgbaU8::zeroed(),
         );
-        self.frame_buffer.fill(RgbaU8::hex(0x181818FF));
+        self.framebuffer.fill(RgbaU8::hex(0x181818FF));
 
         self.fill_rect(10, 10, 100, 100, RgbaU8::hex(0xFFFFFFFF));
         if let Some((x, y)) = self.input_state.cursor_position() {
@@ -122,7 +122,7 @@ impl palser::ApplicationHandler for App {
             self.frame_width,
             self.frame_height,
             palser::FramebufferFormat::Rgba8UnormSrgb,
-            bytemuck::cast_slice(&self.frame_buffer),
+            bytemuck::cast_slice(&self.framebuffer),
         )
         .hide_cursor(self.cursor_hidden)
         .lock_cursor(self.cursor_locked)
