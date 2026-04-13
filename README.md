@@ -9,13 +9,13 @@ Library that handle window creation, framebuffer presentation, and GUI event pip
 ```rs
 #[derive(Default)]
 struct App {
-    frame_buffer: Vec<u8>,
+    framebuffer: Vec<u8>,
 }
 
 impl palser::ApplicationHandler for App {
     fn redraw_requested(&mut self, width: u32, height: u32, _dpi: f64) -> palser::FrameOutput<'_> {
         // Resize framebuffer (if needed).
-        self.frame_buffer
+        self.framebuffer
             .resize(width as usize * height as usize * 4, 0);
 
         // Render a checkerboard pattern.
@@ -26,7 +26,7 @@ impl palser::ApplicationHandler for App {
                     _ => [0xFF, 0x80, 0x80, 0xFF],
                 };
                 let offset = (y as usize * width as usize + x as usize) * 4;
-                self.frame_buffer[offset..offset + 4].copy_from_slice(&color);
+                self.framebuffer[offset..offset + 4].copy_from_slice(&color);
             }
         }
 
@@ -35,7 +35,7 @@ impl palser::ApplicationHandler for App {
             width,
             height,
             palser::FramebufferFormat::Rgba8UnormSrgb,
-            &self.frame_buffer[..],
+            &self.framebuffer[..],
         )
     }
 }
