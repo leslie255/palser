@@ -280,16 +280,18 @@ impl ApplicationWrapperInner {
                 event,
                 is_synthetic: _,
             } => {
-                let key_code = match event.physical_key {
-                    winit::keyboard::PhysicalKey::Code(key_code) => {
-                        key_code::convert_winit_keycode(key_code)
+                if let winit::keyboard::PhysicalKey::Code(key_code) = event.physical_key
+                    && let Some(key_code) = key_code::convert_winit_keycode(key_code)
+                {
+                    match event.state {
+                        winit::event::ElementState::Pressed => {
+                            app.key_pressed(key_code, event.repeat);
+                        }
+                        winit::event::ElementState::Released => {
+                            app.key_released(key_code);
+                        }
                     }
-                    winit::keyboard::PhysicalKey::Unidentified(_) => return,
-                };
-                match event.state {
-                    winit::event::ElementState::Pressed => app.key_pressed(key_code, event.repeat),
-                    winit::event::ElementState::Released => app.key_released(key_code),
-                };
+                }
             }
             WindowEvent::ModifiersChanged(_) => (),
             WindowEvent::Ime(_) => (),
