@@ -2,6 +2,13 @@
 name = "palser"
 version = "0.1.0"
 edition = "2024"
+license = "Apache-2.0"
+description = "Platform Abstraction Layer for SoftwarE Renderers"
+homepage = "https://github.com/leslie255/palser/"
+repository = "https://github.com/leslie255/palser/"
+readme = "README.md"
+keywords = ["gamedev", "graphics", "gui"]
+categories = ["gui", "graphics", "game-development", "rendering"]
 
 [dependencies]
 pollster = "0.4.0"
